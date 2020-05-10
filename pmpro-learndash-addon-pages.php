@@ -69,7 +69,8 @@ class PMPRO_LearnDash_AOP {
 	 * Fired when the plugins for WordPress have finished loading.
 	 */
 	public function plugins_loaded() {
-		
+		$this->post_meta = new \PMPRO_LearnDash_AOP\Includes\Addon_Pages();
+		$this->post_meta->run();
 	}
 }
 PMPRO_LearnDash_AOP::get_instance();
