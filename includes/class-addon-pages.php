@@ -46,6 +46,8 @@ class Addon_Pages {
 			$courses = array_filter( $_POST['aopld'], 'absint' );
 		}
 
+		$level = isset( $_POST[ 'aopld_level'] ) ? absint( $_POST['aopld_level'] ) : 0;
+
 		// Retrieve previous post meta. LearnDash courses can only have one mapped page per course.
 		$ld_is_mapped   = array();
 		$old_ld_courses = get_post_meta( $post_id, '_aop_ld_courses', true );
@@ -56,8 +58,11 @@ class Addon_Pages {
 					if ( in_array( $course_id, $courses, true ) ) {
 						$ld_is_mapped[] = $course_id;
 					} else {
-						foreach ( $courses as $aop_course_id ) {
-							update_post_meta( $aop_course_id, '_aop_ld_mapped_page', $post_id );
+						if ( $level > 0 ) {
+							foreach ( $courses as $aop_course_id ) {
+								update_post_meta( $aop_course_id, '_aop_ld_mapped_page', $post_id );
+							}
+							update_post_meta( $aop_course_id, '_aop_ld_level', $level );
 						}
 					}
 				}
@@ -72,8 +77,10 @@ class Addon_Pages {
 		}
 
 		if ( ! empty( $courses_to_save ) ) {
+			update_post_meta( $post_id, '_aop_ld_level', $level );
 			update_post_meta( $post_id, '_aop_ld_courses', $courses_to_save );
 		} else {
+			update_post_meta( $post_id, '_aop_ld_level', 0 );
 			update_post_meta( $post_id, '_aop_ld_courses', array() );
 		}
 	}
@@ -124,6 +131,23 @@ class Addon_Pages {
 					<?php echo esc_html( $course->post_title ); ?>
 				</label>
 			</div>
+			<?php
+		}
+		?>
+		<h2><?php esc_html_e( 'Select a Level for the Course(s)', 'pmpro-learndash-addon-pages' ); ?></h2>
+		<?php
+		$selected_level = get_post_meta( $post->ID, '_aop_ld_level', true );
+		$level_data     = pmpro_getAllLevels( true, true );
+		if ( $level_data ) {
+			?>
+			<select name="aopld_level">
+				<option value="0"><?php esc_html_e( 'Select a level', 'pmpro-learndash-addon-pages' ); ?></option>
+				<?php
+				foreach ( $level_data as $level ) {
+					printf( '<option value="%s" %s>%s</option>', absint( $level->id ), selected( $level->id, $selected_level ), esc_html( $level->name ) );
+				}
+				?>
+			</select>
 			<?php
 		}
 	}

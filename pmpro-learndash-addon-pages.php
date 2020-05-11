@@ -71,6 +71,9 @@ class PMPRO_LearnDash_AOP {
 	public function plugins_loaded() {
 		$this->post_meta = new \PMPRO_LearnDash_AOP\Includes\Addon_Pages();
 		$this->post_meta->run();
+
+		$this->redirect = new \PMPRO_LearnDash_AOP\Includes\Redirect();
+		$this->redirect->run();
 	}
 }
 PMPRO_LearnDash_AOP::get_instance();
