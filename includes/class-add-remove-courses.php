@@ -20,6 +20,13 @@ class Add_Remove_Courses {
 		add_filter( 'the_content', array( $this, 'add_courses_to_page' ) );
 	}
 
+	/**
+	 * Add enrolled courses to the add-on page.
+	 *
+	 * @param string $content The main post content.
+	 *
+	 * @return string $content The modified post content.
+	 */
 	public function add_courses_to_page( $content ) {
 		global $post;
 		global $current_user;
@@ -51,7 +58,6 @@ class Add_Remove_Courses {
 	public function add_to_package( $user_id, $post_id ) {
 		$courses        = learndash_user_get_enrolled_courses( $user_id );
 		$courses_to_add = get_post_meta( $post_id, '_aop_ld_courses', true );
-		error_log( print_r( $courses_to_add, true ) );
 		if ( is_array( $courses_to_add ) ) {
 			$courses = array_merge( $courses, $courses_to_add );
 			array_unique( $courses );
