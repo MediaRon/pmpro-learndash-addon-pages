@@ -49,24 +49,9 @@ class Addon_Pages {
 		$level = isset( $_POST[ 'aopld_level'] ) ? absint( $_POST['aopld_level'] ) : 0;
 
 		// Retrieve previous post meta. LearnDash courses can only have one mapped page per course.
-		$ld_is_mapped   = array();
-		$old_ld_courses = get_post_meta( $post_id, '_aop_ld_courses', true );
-		if ( is_array( $old_ld_courses ) ) {
-			foreach ( $old_ld_courses as $course_id ) {
-				$old_ld_mapped_page_id = get_post_meta( $course_id, '_aop_ld_mapped_page', true );
-				if ( $old_ld_mapped_page_id ) {
-					if ( in_array( $course_id, $courses, true ) ) {
-						$ld_is_mapped[] = $course_id;
-					} else {
-						if ( $level > 0 ) {
-							foreach ( $courses as $aop_course_id ) {
-								update_post_meta( $aop_course_id, '_aop_ld_mapped_page', $post_id );
-							}
-							update_post_meta( $aop_course_id, '_aop_ld_level', $level );
-						}
-					}
-				}
-			}
+		foreach ( $courses as $aop_course_id ) {
+			update_post_meta( $aop_course_id, '_aop_ld_mapped_page', $post_id );
+			update_post_meta( $aop_course_id, '_aop_ld_level', $level );
 		}
 
 		$courses_to_save = array();

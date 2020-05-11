@@ -69,11 +69,17 @@ class PMPRO_LearnDash_AOP {
 	 * Fired when the plugins for WordPress have finished loading.
 	 */
 	public function plugins_loaded() {
+		if ( ! function_exists( 'pmproap_post_meta' ) || ! function_exists( 'pmpro_has_membership_access' ) || ! function_exists( 'learndash_user_get_enrolled_courses' ) ) {
+			return;
+		}
 		$this->post_meta = new \PMPRO_LearnDash_AOP\Includes\Addon_Pages();
 		$this->post_meta->run();
 
 		$this->redirect = new \PMPRO_LearnDash_AOP\Includes\Redirect();
 		$this->redirect->run();
+
+		$this->add_remove_courses = new \PMPRO_LearnDash_AOP\Includes\Add_Remove_Courses();
+		$this->add_remove_courses->run();
 	}
 }
 PMPRO_LearnDash_AOP::get_instance();
