@@ -36,10 +36,20 @@ class Redirect {
 		// Redirect if mapped to a post and level.
 		if ( ! empty( $post ) && $post->post_type == 'sfwd-courses' ) {
 			$mapped_post = get_post_meta( $post->ID, '_aop_ld_mapped_page', true );
-			$level       = absint( get_post_meta( $post->ID, '_aop_ld_level', true ) );
-			$blah = get_post_custom( $post->ID );
-			if ( ! $mapped_post || ! $level ) {
+			$levels       = get_post_meta( $post->ID, '_aop_ld_level', true );
+			$default_level = absint( get_post_meta( $post->ID, '_aop_ld_level_default', true ) );
+			if ( ! $mapped_post || ! $levels || ! $default_level ) {
 				return;
+			}
+			$level_data = pmpro_getMembershipLevelForUser( $current_user->ID );
+			if ( ! $level_data ) {
+				$level = $default_level;
+			} else {
+				if ( in_array( $level_data->id, $levels ) ) {
+					$level = $level_data->id;
+				} else {
+					return;
+				}
 			}
 			$checkout_url = add_query_arg(
 				array(

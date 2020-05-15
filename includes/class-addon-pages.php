@@ -46,12 +46,15 @@ class Addon_Pages {
 			$courses = array_filter( $_POST['aopld'], 'absint' );
 		}
 
-		$level = isset( $_POST[ 'aopld_level'] ) ? absint( $_POST['aopld_level'] ) : 0;
+		$levels = isset( $_POST[ 'aopld_level'] ) ? $_POST['aopld_level'] : array();
+
+		$level_default = isset( $_POST[ 'aopld_default_level'] ) ? absint( $_POST['aopld_default_level'] ) : 0;
 
 		// Retrieve previous post meta. LearnDash courses can only have one mapped page per course.
 		foreach ( $courses as $aop_course_id ) {
 			update_post_meta( $aop_course_id, '_aop_ld_mapped_page', $post_id );
-			update_post_meta( $aop_course_id, '_aop_ld_level', $level );
+			update_post_meta( $aop_course_id, '_aop_ld_level', $levels );
+			update_post_meta( $aop_course_id, '_aop_ld_level_default', $level_default );
 		}
 
 		$courses_to_save = array();
@@ -62,11 +65,13 @@ class Addon_Pages {
 		}
 
 		if ( ! empty( $courses_to_save ) ) {
-			update_post_meta( $post_id, '_aop_ld_level', $level );
+			update_post_meta( $post_id, '_aop_ld_level', $levels );
 			update_post_meta( $post_id, '_aop_ld_courses', $courses_to_save );
+			update_post_meta( $post_id, '_aop_ld_level_default', $level_default );
 		} else {
-			update_post_meta( $post_id, '_aop_ld_level', 0 );
+			update_post_meta( $post_id, '_aop_ld_levels', array() );
 			update_post_meta( $post_id, '_aop_ld_courses', array() );
+			update_post_meta( $post_id, '_aop_ld_level_default', 0 );
 		}
 	}
 
@@ -119,21 +124,32 @@ class Addon_Pages {
 			<?php
 		}
 		?>
-		<h2><?php esc_html_e( 'Select a Level for the Course(s)', 'pmpro-learndash-addon-pages' ); ?></h2>
+		<h2><?php esc_html_e( 'Select a Level(s) for the Course(s)', 'pmpro-learndash-addon-pages' ); ?></h2>
 		<?php
 		$selected_level = get_post_meta( $post->ID, '_aop_ld_level', true );
 		$level_data     = pmpro_getAllLevels( true, true );
 		if ( $level_data ) {
-			?>
-			<select name="aopld_level">
-				<option value="0"><?php esc_html_e( 'Select a level', 'pmpro-learndash-addon-pages' ); ?></option>
-				<?php
-				foreach ( $level_data as $level ) {
-					printf( '<option value="%s" %s>%s</option>', absint( $level->id ), selected( $level->id, $selected_level ), esc_html( $level->name ) );
-				}
+			foreach ( $level_data as $level ) :
 				?>
-			</select>
-			<?php
+				<label>
+					<input value="<?php echo absint( $level->id ); ?>" type="checkbox" name="aopld_level[]" <?php checked( true, in_array( $level->id, $selected_level ) ); ?> /> <?php echo esc_html( $level->name ); ?>
+				</label><br />
+				<?php
+			endforeach;
+		}
+		?>
+		<h2><?php esc_html_e( 'Select a default level for logged out users or users without levels', 'pmpro-learndash-addon-pages' ); ?></h2>
+		<?php
+		$default_level = get_post_meta( $post->ID, '_aop_ld_level_default', true );
+		$level_data     = pmpro_getAllLevels( true, true );
+		if ( $level_data ) {
+			echo '<select name="aopld_default_level">';
+			foreach ( $level_data as $level ) :
+				?>
+				<option value="<?php echo absint( $level->id ); ?>" <?php selected( $level->id, $default_level ); ?>><?php echo esc_html( $level->name ); ?></option>
+				<?php
+			endforeach;
+			echo '</select>';
 		}
 	}
 }
